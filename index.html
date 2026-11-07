@@ -24,13 +24,17 @@
       <a href="#about">О себе</a>
       <a href="#reviews">Отзывы</a>
     </nav>
-    <a class="btn btn-small" href="#order">Заказать</a>
+    <a class="btn btn-small btn-light" href="#order">Заказать</a>
   </header>
 
   <main>
     <!-- Hero: video frames scrub with scroll -->
     <section class="hero" id="hero" aria-label="Шоколадное сердце">
       <div class="hero-sticky">
+        <picture class="hero-poster" aria-hidden="true">
+          <source media="(max-aspect-ratio: 1/1)" srcset="assets/hero/m/000.webp">
+          <img src="assets/hero/d/000.webp" alt="">
+        </picture>
         <canvas class="hero-canvas" aria-hidden="true"></canvas>
         <div class="hero-copy">
           <div class="beat" data-from="0" data-to="0.2">
@@ -54,7 +58,7 @@
       </div>
     </section>
 
-    <section class="collections" id="collections">
+    <section class="collections band on-cocoa" id="collections">
       <div class="section-head">
         <h2>Коллекции</h2>
         <p>Выберите размер набора, чтобы увидеть цену. Состав и&nbsp;начинки уточню при заказе.</p>
@@ -62,7 +66,7 @@
       <div class="products" id="products"></div>
     </section>
 
-    <section class="about" id="about">
+    <section class="about band on-pink" id="about">
       <figure class="about-photo">
         <img src="assets/img/about.webp" alt="Мастер покрывает конфеты шоколадом" width="500" height="575" loading="lazy">
       </figure>
@@ -73,12 +77,12 @@
         <div class="course">
           <h3>Обучение</h3>
           <p>Учу делать корпусные конфеты и&nbsp;трюфели с&nbsp;нуля. Программа и&nbsp;даты появятся здесь.</p>
-          <a class="btn btn-light" href="#order">Узнать об&nbsp;обучении</a>
+          <a class="btn" href="#order">Узнать об&nbsp;обучении</a>
         </div>
       </div>
     </section>
 
-    <section class="reviews" id="reviews">
+    <section class="reviews band on-cocoa" id="reviews">
       <div class="section-head">
         <h2>Отзывы</h2>
         <p>Нажмите на&nbsp;фото, чтобы открыть все отзывы по&nbsp;очереди.</p>
@@ -87,13 +91,13 @@
     </section>
   </main>
 
-  <footer class="site-footer" id="order">
+  <footer class="site-footer band on-pink" id="order">
     <span class="logo-full logo-footer" role="img" aria-label="Шоколадные объятия"></span>
     <div class="footer-text">
       <h2>Как заказать</h2>
       <p>Напишите мне в&nbsp;Telegram или Instagram: какой набор, сколько конфет и&nbsp;к&nbsp;какой дате. Я&nbsp;отвечу и&nbsp;подтвержу заказ.</p>
       <div class="footer-links">
-        <a class="btn btn-light" href="https://t.me/" rel="noopener">Написать в&nbsp;Telegram</a>
+        <a class="btn" href="https://t.me/" rel="noopener">Написать в&nbsp;Telegram</a>
         <a class="link" href="https://instagram.com/dashuly_choco_hug" rel="noopener">Instagram</a>
       </div>
     </div>

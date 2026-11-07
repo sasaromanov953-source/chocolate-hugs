@@ -3,24 +3,28 @@
   const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 
   /* ---------- Hero: frames scrubbed by scroll ---------- */
+  // Works whether the window, the body or an embedding frame does the scrolling:
+  // progress is read from the hero's position every animation frame.
+  // If the page cannot scroll on its own (an auto-height embed), the frames play by themselves.
   const FRAME_COUNT = 218;
   const hero = document.getElementById("hero");
   const canvas = hero.querySelector(".hero-canvas");
   const ctx = canvas.getContext("2d");
   const beats = [...hero.querySelectorAll(".beat")];
   const hint = hero.querySelector(".scroll-hint");
+  const header = document.querySelector(".site-header");
   const BG = "#efc1cf";
-  let set = null, frames = [], current = 0, target = 0, rafId = 0;
+  let set = null, frames = [], current = 0, target = 0, needsDraw = true, lastP = -1;
+  let auto = false, autoStart = 0, heroVisible = true;
 
   const pad = (n) => String(n).padStart(3, "0");
-  const portrait = () => innerWidth / innerHeight < 1;
+  const portrait = () => canvas.clientWidth / Math.max(1, canvas.clientHeight) < 1;
 
   function loadSet(name) {
     if (set === name) return;
     set = name;
     frames = new Array(FRAME_COUNT);
     const order = [0];
-    // load every 8th frame first so scrubbing works early, then fill the gaps
     for (const step of [8, 4, 2, 1])
       for (let i = 0; i < FRAME_COUNT; i += step) if (!order.includes(i)) order.push(i);
     let next = 0;
@@ -28,8 +32,7 @@
       if (next >= order.length || set !== name) return;
       const i = order[next++];
       const img = new Image();
-      img.decoding = "async";
-      img.onload = () => { if (set === name) { frames[i] = img; if (i === 0) draw(true); } worker(); };
+      img.onload = () => { if (set === name) { frames[i] = img; needsDraw = true; } worker(); };
       img.onerror = worker;
       img.src = `assets/hero/${name}/${pad(i)}.webp`;
     };
@@ -44,30 +47,28 @@
     return null;
   }
 
-  function resize() {
+  function sizeCanvas() {
     const dpr = Math.min(devicePixelRatio || 1, 2);
-    canvas.width = Math.round(canvas.clientWidth * dpr);
-    canvas.height = Math.round(canvas.clientHeight * dpr);
+    const w = Math.round(canvas.clientWidth * dpr), h = Math.round(canvas.clientHeight * dpr);
+    if (!w || !h) return;
+    if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
     loadSet(portrait() ? "m" : "d");
-    draw(true);
+    needsDraw = true;
   }
 
-  function draw(force) {
+  function draw() {
     const img = nearestFrame(Math.round(current));
-    if (!img) return;
+    if (!img || !canvas.width) return;
     const W = canvas.width, H = canvas.height;
     const iw = img.naturalWidth, ih = img.naturalHeight;
     ctx.fillStyle = BG;
     ctx.fillRect(0, 0, W, H);
     if (set === "d") {
-      // cover, keeping the subject (right of centre) in view
       const s = Math.max(W / iw, H / ih);
       const dw = iw * s, dh = ih * s;
-      const focus = 0.64;
-      const x = clamp(W / 2 - dw * focus, W - dw, 0);
+      const x = clamp(W / 2 - dw * 0.64, W - dw, 0);
       ctx.drawImage(img, x, (H - dh) / 2, dw, dh);
     } else {
-      // portrait: full width, anchored low, text sits above
       const s = Math.max(W / iw, (H * 0.5) / ih);
       const dw = iw * s, dh = ih * s;
       const y = H - dh - H * 0.07;
@@ -76,11 +77,7 @@
       g.addColorStop(0, BG); g.addColorStop(1, "rgba(239,193,207,0)");
       ctx.fillStyle = g; ctx.fillRect(0, y - 1, W, dh * 0.22);
     }
-  }
-
-  function progress() {
-    const r = hero.getBoundingClientRect();
-    return clamp(-r.top / (r.height - innerHeight));
+    hero.classList.add("drawn");
   }
 
   function updateBeats(p) {
@@ -88,36 +85,57 @@
     for (const b of beats) {
       const from = +b.dataset.from, to = +b.dataset.to;
       const fin = from === 0 ? 1 : clamp((p - from) / f);
-      const fout = clamp((to - p) / f);
-      const o = Math.min(fin, fout);
+      const o = Math.min(fin, clamp((to - p) / f));
       b.style.opacity = o;
       b.style.transform = reduceMotion ? "" : `translateY(${(1 - o) * (p < from + f ? 18 : -18)}px)`;
       b.classList.toggle("on", o > 0.5);
     }
-    hint.style.opacity = p > 0.03 ? 0 : 0.8;
+    hint.style.opacity = auto || p > 0.03 ? 0 : 0.8;
   }
 
-  function tick() {
-    rafId = 0;
-    const diff = target - current;
-    current = reduceMotion || Math.abs(diff) < 0.3 ? target : current + diff * 0.22;
-    draw();
-    if (current !== target) rafId = requestAnimationFrame(tick);
+  function checkMode() {
+    // An embed that grows to fit the page makes the viewport far taller than the screen.
+    const tooTall = innerHeight > (screen.height || 1000) * 1.4;
+    if (tooTall !== auto) {
+      auto = tooTall;
+      document.documentElement.classList.toggle("hero-auto", auto);
+      autoStart = performance.now();
+      sizeCanvas();
+    }
   }
 
-  function onScroll() {
-    const p = progress();
+  function scrollProgress() {
+    const r = hero.getBoundingClientRect();
+    const run = r.height - canvas.clientHeight;
+    return run > 0 ? clamp(-r.top / run) : 0;
+  }
+
+  function loop(now) {
+    let p;
+    if (auto) {
+      // play 8 s, hold the box for 2 s, start again
+      const t = heroVisible ? ((now - autoStart) % 10000) / 8000 : 0;
+      p = reduceMotion ? 1 : clamp(t);
+    } else {
+      p = scrollProgress();
+    }
     target = p * (FRAME_COUNT - 1);
-    updateBeats(p);
-    if (!rafId) rafId = requestAnimationFrame(tick);
+    if (p !== lastP) { updateBeats(p); lastP = p; }
+    const diff = target - current;
+    if (diff) { current = auto || reduceMotion || Math.abs(diff) < 0.3 ? target : current + diff * 0.22; needsDraw = true; }
+    if (needsDraw) { needsDraw = false; draw(); }
     header.classList.toggle("solid", hero.getBoundingClientRect().bottom < 80);
+    requestAnimationFrame(loop);
   }
 
-  const header = document.querySelector(".site-header");
-  addEventListener("scroll", onScroll, { passive: true });
-  addEventListener("resize", () => { resize(); onScroll(); });
-  resize();
-  onScroll();
+  if ("ResizeObserver" in window) new ResizeObserver(sizeCanvas).observe(canvas);
+  if ("IntersectionObserver" in window)
+    new IntersectionObserver(([e]) => { heroVisible = e.isIntersecting; if (heroVisible && auto) autoStart = performance.now(); }).observe(hero);
+  addEventListener("resize", () => { checkMode(); sizeCanvas(); });
+  checkMode();
+  sizeCanvas();
+  updateBeats(0);
+  requestAnimationFrame(loop);
 
   /* ---------- Collections (placeholder data) ---------- */
   const products = [
