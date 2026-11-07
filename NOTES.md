@@ -8,7 +8,7 @@
   План: в Kie AI, Seedance 2.5, режим First & Last Frames, aspect_ratio
   `adaptive`, 5 с, звук выключен, 480p:
   - `first_frame_url`: целое сердце (К1);
-  - `last_frame_url`: `k2_last_frame.jpg`, точный первый кадр второй части;
+  - `last_frame_url`: `source/k2_last_frame.jpg`, точный первый кадр второй части;
   - промпт с требованием непрерывного движения без пауз.
   После этого увеличить обе части одинаково и пересобрать кадры
   в `assets/hero/d` (1920×1080) и `assets/hero/m` (750×810, обрезка x 800–1800).
