@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Шоколадные объятия</title>
+  <meta name="description" content="Конфеты, трюфели, батончики и шоколадные наборы ручной работы.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prata&family=Golos+Text:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="preload" as="image" href="assets/hero/d/000.webp" media="(min-aspect-ratio: 1/1)">
+  <link rel="preload" as="image" href="assets/hero/m/000.webp" media="(max-aspect-ratio: 1/1)">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <a class="skip" href="#collections">Перейти к коллекциям</a>
+
+  <header class="site-header" id="top">
+    <a class="brand" href="#top" aria-label="Шоколадные объятия, наверх">
+      <span class="logo-mark" aria-hidden="true"></span>
+    </a>
+    <nav class="nav" aria-label="Разделы">
+      <a href="#collections">Коллекции</a>
+      <a href="#about">О себе</a>
+      <a href="#reviews">Отзывы</a>
+    </nav>
+    <a class="btn btn-small" href="#order">Заказать</a>
+  </header>
+
+  <main>
+    <!-- Hero: video frames scrub with scroll -->
+    <section class="hero" id="hero" aria-label="Шоколадное сердце">
+      <div class="hero-sticky">
+        <canvas class="hero-canvas" aria-hidden="true"></canvas>
+        <div class="hero-copy">
+          <div class="beat" data-from="0" data-to="0.2">
+            <h1 class="logo-full"><span class="visually-hidden">Шоколадные объятия</span></h1>
+            <p class="lead">Конфеты, трюфели и&nbsp;батончики ручной работы</p>
+          </div>
+          <div class="beat" data-from="0.26" data-to="0.5">
+            <p class="beat-title">Внутри каждой конфеты своя начинка</p>
+            <p class="lead">Сливочный сыр, орехи, ягоды и&nbsp;сухофрукты. Всё делаю сама, небольшими партиями.</p>
+          </div>
+          <div class="beat" data-from="0.56" data-to="0.8">
+            <p class="beat-title">Соберу коробку под&nbsp;ваш повод</p>
+            <p class="lead">4, 9 или 16 конфет. Начинки и&nbsp;надпись на&nbsp;шоколадной табличке можно выбрать.</p>
+          </div>
+          <div class="beat" data-from="0.86" data-to="1.01">
+            <p class="beat-title">Выберите свой набор</p>
+            <a class="btn" href="#collections">Смотреть коллекции</a>
+          </div>
+        </div>
+        <p class="scroll-hint" aria-hidden="true">Листайте вниз</p>
+      </div>
+    </section>
+
+    <section class="collections" id="collections">
+      <div class="section-head">
+        <h2>Коллекции</h2>
+        <p>Выберите размер набора, чтобы увидеть цену. Состав и&nbsp;начинки уточню при заказе.</p>
+      </div>
+      <div class="products" id="products"></div>
+    </section>
+
+    <section class="about" id="about">
+      <figure class="about-photo">
+        <img src="assets/img/about.webp" alt="Мастер покрывает конфеты шоколадом" width="500" height="575" loading="lazy">
+      </figure>
+      <div class="about-text">
+        <h2>Привет! Я&nbsp;[Имя]</h2>
+        <p>Здесь будет рассказ о&nbsp;себе: как вы пришли в&nbsp;шоколад, из&nbsp;чего делаете конфеты и&nbsp;что для&nbsp;вас важно в&nbsp;работе.</p>
+        <p>Второй абзац: где вы&nbsp;находитесь, как заказать и&nbsp;сколько дней нужно на&nbsp;изготовление набора.</p>
+        <div class="course">
+          <h3>Обучение</h3>
+          <p>Учу делать корпусные конфеты и&nbsp;трюфели с&nbsp;нуля. Программа и&nbsp;даты появятся здесь.</p>
+          <a class="btn btn-light" href="#order">Узнать об&nbsp;обучении</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="reviews" id="reviews">
+      <div class="section-head">
+        <h2>Отзывы</h2>
+        <p>Нажмите на&nbsp;фото, чтобы открыть все отзывы по&nbsp;очереди.</p>
+      </div>
+      <div class="pile" id="pile"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="order">
+    <span class="logo-full logo-footer" role="img" aria-label="Шоколадные объятия"></span>
+    <div class="footer-text">
+      <h2>Как заказать</h2>
+      <p>Напишите мне в&nbsp;Telegram или Instagram: какой набор, сколько конфет и&nbsp;к&nbsp;какой дате. Я&nbsp;отвечу и&nbsp;подтвержу заказ.</p>
+      <div class="footer-links">
+        <a class="btn btn-light" href="https://t.me/" rel="noopener">Написать в&nbsp;Telegram</a>
+        <a class="link" href="https://instagram.com/dashuly_choco_hug" rel="noopener">Instagram</a>
+      </div>
+    </div>
+  </footer>
+
+  <div class="viewer" id="viewer" hidden>
+    <div class="viewer-backdrop" data-close></div>
+    <img class="viewer-img" alt="">
+    <p class="viewer-count" aria-live="polite"></p>
+    <button class="viewer-btn viewer-close" type="button" aria-label="Закрыть" data-close>&times;</button>
+    <button class="viewer-btn viewer-prev" type="button" aria-label="Предыдущий отзыв">&lsaquo;</button>
+    <button class="viewer-btn viewer-next" type="button" aria-label="Следующий отзыв">&rsaquo;</button>
+  </div>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

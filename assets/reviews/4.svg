@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 700" width="700" height="700">
+<rect width="700" height="700" fill="#f7ece9"/>
+<rect width="700" height="84" fill="#604340"/>
+<circle cx="44" cy="42" r="20" fill="#efd0d6"/>
+<rect x="76" y="32" width="120" height="20" rx="10" fill="#efd0d6" opacity=".7"/>
+<rect x="306" y="140" width="370" height="64" rx="20" fill="#e9c6cf"/><rect x="359" y="222" width="317" height="84" rx="20" fill="#e9c6cf"/><rect x="24" y="324" width="274" height="84" rx="20" fill="#ffffff"/><rect x="24" y="426" width="437" height="64" rx="20" fill="#ffffff"/><rect x="24" y="508" width="369" height="64" rx="20" fill="#ffffff"/>
+<rect x="200.0" y="306.0" width="300" height="88" rx="18" fill="#604340" opacity=".92"/>
+<text x="350.0" y="360.0" text-anchor="middle" font-family="sans-serif" font-size="26" fill="#efd0d6">Отзыв 4: место для фото</text>
+</svg>
