@@ -65,6 +65,8 @@
     if (!img || !canvas.width) return;
     const W = canvas.width, H = canvas.height;
     const iw = img.naturalWidth, ih = img.naturalHeight;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
     ctx.fillStyle = BG;
     ctx.fillRect(0, 0, W, H);
     if (set === "d") {
