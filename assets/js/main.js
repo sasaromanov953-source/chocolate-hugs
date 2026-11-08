@@ -1,12 +1,16 @@
 (() => {
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+  // The shareable preview embeds its images in the page; the real site loads them as files.
+  const ASSETS = window.EMBEDDED_ASSETS || {};
+  const asset = (path) => ASSETS[path] || path;
+  const EMBEDDED_FRAMES = window.EMBEDDED_FRAMES || null;
 
   /* ---------- Hero: frames scrubbed by scroll ---------- */
   // Works whether the window, the body or an embedding frame does the scrolling:
   // progress is read from the hero's position every animation frame.
   // If the page cannot scroll on its own (an auto-height embed), the frames play by themselves.
-  const FRAME_COUNT = 218;
+  const FRAME_COUNT = EMBEDDED_FRAMES ? EMBEDDED_FRAMES.d.length : 218;
   const hero = document.getElementById("hero");
   const canvas = hero.querySelector(".hero-canvas");
   const ctx = canvas.getContext("2d");
@@ -34,7 +38,7 @@
       const img = new Image();
       img.onload = () => { if (set === name) { frames[i] = img; needsDraw = true; } worker(); };
       img.onerror = worker;
-      img.src = `assets/hero/${name}/${pad(i)}.webp`;
+      img.src = EMBEDDED_FRAMES ? EMBEDDED_FRAMES[name][i] : `assets/hero/${name}/${pad(i)}.webp`;
     };
     for (let k = 0; k < 6; k++) worker();
   }
@@ -161,7 +165,7 @@
           <label><input type="radio" name="${group}" value="${k}" ${k === 0 ? "checked" : ""}><span>${n} шт</span></label>`).join("")}
       </fieldset>
       <div class="buy"><span class="price">${rub(p.sizes[0][1])}</span><a class="btn" href="#order">Заказать</a></div>
-      <div class="photo"><img src="assets/img/${p.img}.webp" alt="${p.name.replace(/[«»]/g, "")}, ${p.kind.toLowerCase()}" loading="lazy"></div>`;
+      <div class="photo"><img src="${asset(`assets/img/${p.img}.webp`)}" alt="${p.name.replace(/[«»]/g, "")}, ${p.kind.toLowerCase()}" loading="lazy"></div>`;
     el.querySelector(".sizes").addEventListener("change", (e) => {
       el.querySelector(".price").textContent = rub(p.sizes[+e.target.value][1]);
     });
@@ -169,24 +173,40 @@
   });
 
   /* ---------- Reviews pile + fullscreen viewer ---------- */
-  const reviews = [1, 2, 3, 4, 5, 6, 7].map((n) => `assets/reviews/${n}.svg`);
-  // fixed "random" layout so the pile looks the same on every visit
-  const layout = [
-    [-26, -12, -9, 1], [20, -16, 7, 0.95], [-8, 8, -4, 1.05], [28, 10, 11, 0.9],
-    [-30, 14, 6, 0.9], [6, -18, -12, 0.95], [4, 6, 3, 1],
+  const reviews = [1, 2, 3, 4, 5, 6, 7].map((n) => asset(`assets/reviews/${n}.svg`));
+  // Bouquet: [tilt in degrees, extra height in px, width factor]. Fixed so it looks the same on every visit.
+  const stems = [
+    [-42, 0, 0.9], [-27, 70, 1], [-12, 30, 1.05], [1, 120, 1], [14, 45, 1.05], [28, 85, 0.95], [43, 10, 0.9],
   ];
-  const pile = document.getElementById("pile");
+  const bouquet = document.getElementById("bouquet");
+  const narrow = () => innerWidth < 760;
   const thumbs = reviews.map((src, i) => {
-    const [x, y, r, s] = layout[i % layout.length];
+    const [r, lift, s] = stems[i % stems.length];
     const b = document.createElement("button");
     b.type = "button";
     b.setAttribute("aria-label", `Открыть отзыв ${i + 1} из ${reviews.length}`);
-    b.style.cssText = `--x:${x}%;--y:${y}%;--r:${r}deg;--w:calc(clamp(104px, 16vw, 176px) * ${s});z-index:${i + 1}`;
+    const center = Math.abs(i - (reviews.length - 1) / 2);
+    b.style.setProperty("--r", r * (narrow() ? 0.8 : 1) + "deg");
+    b.style.setProperty("--lift", lift * (narrow() ? 0.6 : 1) + "px");
+    b.style.setProperty("--w", `calc(clamp(118px, 13vw, 150px) * ${s})`);
+    b.style.setProperty("--z", String(10 - Math.round(center)));
     b.innerHTML = `<img src="${src}" alt="" loading="lazy">`;
     b.addEventListener("click", () => openViewer(i));
-    pile.append(b);
+    bouquet.append(b);
     return b;
   });
+
+  thumbs.forEach((b, i) => b.style.setProperty("--delay", (i * 0.09).toFixed(2) + "s"));
+  if (!reduceMotion && "IntersectionObserver" in window) {
+    bouquet.classList.add("ready");
+    const io = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) return;
+      io.disconnect();
+      requestAnimationFrame(() => bouquet.classList.add("bloom"));
+      setTimeout(() => bouquet.classList.add("settled"), 1500);
+    }, { threshold: 0.35 });
+    io.observe(bouquet);
+  }
 
   const viewer = document.getElementById("viewer");
   const vImg = viewer.querySelector(".viewer-img");
